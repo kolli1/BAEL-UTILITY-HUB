@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weekly Store Audit</title>
+    <style>
+        :root { --me-blue: #0056b3; --danger: #e74c3c; --success: #25D366; --bg: #f4f7f6; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .card { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .store-selector { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--me-blue); font-size: 1rem; font-weight: bold; color: var(--me-blue); margin-bottom: 15px; outline: none; background-color: #fff; -webkit-appearance: none; }
+        h2 { text-align: center; color: var(--me-blue); margin: 0; font-size: 1.4rem; }
+        .timestamp { text-align: center; font-size: 0.75rem; color: #95a5a6; margin-top: 5px; font-weight: bold; }
+        .section-title { background: #eee; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 0.8rem; margin-top: 20px; color: #555; text-transform: uppercase; }
+        .audit-item { padding: 15px 0; border-bottom: 1px solid #eee; }
+        .item-label { font-weight: 700; color: #2c3e50; font-size: 0.9rem; margin-bottom: 8px; display: block; text-transform: uppercase; }
+        .status-group { display: flex; gap: 8px; }
+        .btn-opt { flex: 1; border: 1px solid #ddd; padding: 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; background: white; color: #7f8c8d; }
+        .btn-opt.active.green { background: var(--success); color: white; border-color: var(--success); }
+        .btn-opt.active.red { background: var(--danger); color: white; border-color: var(--danger); }
+        .qty-row { display: flex; align-items: center; justify-content: space-between; background: #f9f9f9; padding: 10px; border-radius: 10px; }
+        .qty-input { width: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; font-weight: bold; font-size: 1rem; }
+        .btn-wa { width: 100%; padding: 18px; border: none; border-radius: 12px; background: var(--success); color: white; font-weight: bold; font-size: 1.1rem; margin-top: 25px; cursor: pointer; }
+        .back-link { margin-top: 20px; color: #95a5a6; text-decoration: none; font-size: 0.85rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Weekly Store Audit</h2>
+        <div id="displayTime" class="timestamp"></div>
+        <select id="storeName" class="store-selector">
+            <option value="Kondapur">KONDAPUR</option>
+            <option value="Manikonda">MANIKONDA</option>
+            <option value="Film Nagar">FILM NAGAR</option>
+        </select>
+        <div class="section-title">Hygiene</div>
+        <div class="audit-item"><span class="item-label">Deep Freezer</span><div class="status-group"><button class="btn-opt active green" onclick="setS('freezer','Clean',this,'green')">CLEAN</button><button class="btn-opt red" onclick="setS('freezer','Dirty',this,'red')">DIRTY</button></div></div>
+        <div class="audit-item"><span class="item-label">Storage Boxes</span><div class="status-group"><button class="btn-opt active green" onclick="setS('storage','Clean',this,'green')">CLEAN</button><button class="btn-opt red" onclick="setS('storage','Dirty',this,'red')">DIRTY</button></div></div>
+        <div class="section-title">Quality</div>
+        <div class="audit-item"><span class="item-label">Mochi Shape</span><div class="status-group"><button class="btn-opt active green" onclick="setS('mochi','Good',this,'green')">GOOD</button><button class="btn-opt red" onclick="setS('mochi','Deformed',this,'red')">DEFORMED</button></div></div>
+        <div class="section-title">Supplies</div>
+        <div class="audit-item"><span class="item-label">Packaging Boxes Order</span><div class="status-group"><button class="btn-opt active green" onclick="setS('restock','No',this,'green')">NOT NEEDED</button><button class="btn-opt red" onclick="setS('restock','Yes',this,'red')">REQUIRED</button></div></div>
+        <div class="audit-item"><span class="item-label">Tissue Packs</span><div class="qty-row"><span>Min: 2</span><input type="number" id="q-tissues" class="qty-input" placeholder="0"></div></div>
+        <div class="audit-item"><span class="item-label">Take-Away Covers</span><div class="qty-row"><span>Min: 2</span><input type="number" id="q-covers" class="qty-input" placeholder="0"></div></div>
+        <button class="btn-wa" onclick="send()">SHARE WEEKLY REPORT</button>
+    </div>
+    <a href="index.html" class="back-link">← HUB HOME</a>
+    <script>
+        const now = new Date();
+        const formattedTime = now.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+        document.getElementById('displayTime').innerText = `DATE: ${formattedTime}`;
+        const state = { freezer: 'Clean', storage: 'Clean', mochi: 'Good', restock: 'No' };
+        function setS(key, val, btn, color) {
+            state[key] = val;
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.btn-opt').forEach(b => b.classList.remove('active', 'green', 'red'));
+            btn.classList.add('active', color);
+        }
+        function send() {
+            const store = document.getElementById('storeName').value;
+            const qT = document.getElementById('q-tissues').value || 0;
+            const qC = document.getElementById('q-covers').value || 0;
+            let msg = `📅 *WEEKLY AUDIT: ${store.toUpperCase()}*\nTime: ${formattedTime}\n━━━━━━━━━━━━━━━━━━\n\n`;
+            msg += `❄️ FREEZER: ${state.freezer.toUpperCase()}\n📦 STORAGE: ${state.storage.toUpperCase()}\n🍡 MOCHI: ${state.mochi.toUpperCase()}\n📦 BOX ORDER: ${state.restock === 'Yes' ? 'REQUIRED' : 'NOT NEEDED'}\n🧻 TISSUES: ${qT}\n🛍️ COVERS: ${qC}\n\n`;
+            let actions = [];
+            if(state.freezer === 'Dirty') actions.push("CLEAN FREEZER");
+            if(state.storage === 'Dirty') actions.push("CLEAN STORAGE BOXES");
+            if(state.mochi === 'Deformed') actions.push("CHECK DEFORMED MOCHI");
+            if(state.restock === 'Yes') actions.push("ORDER PACKAGING BOXES");
+            if(parseInt(qT) < 2) actions.push("REFILL TISSUES");
+            if(parseInt(qC) < 2) actions.push("REFILL COVERS");
+            msg += actions.length ? `⚠️ *ACTION REQUIRED:*\n- ${actions.join("\n- ")}\n` : `✅ *ALL OK*\n`;
+            msg += `━━━━━━━━━━━━━━━━━━`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
