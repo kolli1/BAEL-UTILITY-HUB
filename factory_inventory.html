@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Factory Stock Hub</title>
+    <style>
+        :root { --me-blue: #0056b3; --success: #25D366; --warning: #ff9800; --danger: #ff4444; --bg: #f0f2f5; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 450px; margin-bottom: 20px; text-align: center; }
+        .header h2 { color: var(--me-blue); margin: 0; font-size: 1.6rem; font-weight: 800; }
+        .timestamp { font-size: 0.75rem; color: #7f8c8d; font-weight: 600; margin-top: 5px; text-transform: uppercase; }
+        .dashboard { width: 100%; max-width: 450px; display: grid; gap: 10px; }
+        .stock-card { background: white; padding: 12px 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 6px solid #ddd; }
+        .stock-card.healthy { border-left-color: var(--success); }
+        .stock-card.low { border-left-color: var(--warning); background: #fffcf5; }
+        .stock-card.critical { border-left-color: var(--danger); background: #fff5f5; }
+        .sku-name { font-weight: 700; color: #2c3e50; font-size: 1rem; }
+        .status-tag { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-top: 2px; display: block; }
+        .qty-input { width: 75px; height: 45px; border: 2px solid #edf2f7; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: 800; color: var(--me-blue); outline: none; -webkit-appearance: none; }
+        .btn-wa { width: 100%; max-width: 450px; padding: 18px; border: none; border-radius: 18px; background: #128C7E; color: white; font-weight: 800; font-size: 1.1rem; margin-top: 30px; cursor: pointer; box-shadow: 0 10px 20px rgba(18,140,126,0.2); }
+        .back-btn { margin: 25px 0; color: #95a5a6; text-decoration: none; font-size: 0.9rem; font-weight: 700; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="header"><h2>Factory Stock Hub</h2><div id="displayTime" class="timestamp"></div></div>
+    <div id="sku-list" class="dashboard"></div>
+    <button class="btn-wa" onclick="sendReport()">📤 SHARE WEEKLY INVENTORY</button>
+    <a href="index.html" class="back-btn">← RETURN TO HUB</a>
+    <script>
+        const now = new Date();
+        const formattedTime = now.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+        document.getElementById('displayTime').innerText = `Sync: ${formattedTime}`;
+        const skus = ["Vanilla", "Chocolate", "Strawberry", "Mango", "Grape", "Muskmelon", "Coconut", "Lotus Biscoff", "Matcha", "Brownie"];
+        function render() {
+            const cont = document.getElementById('sku-list');
+            skus.forEach(s => {
+                const id = s.replace(/\s+/g, '');
+                cont.innerHTML += `<div class="stock-card healthy" id="card-${id}"><div><span class="sku-name">${s}</span><span class="status-tag" id="tag-${id}" style="color:var(--success)">HEALTHY</span></div><input type="number" inputmode="numeric" min="0" class="qty-input" data-sku="${s}" placeholder="0" oninput="updateStatus(this)"></div>`;
+            });
+        }
+        function updateStatus(el) {
+            if (el.value < 0) el.value = 0;
+            const val = el.value === "" ? 99 : parseInt(el.value);
+            const id = el.dataset.sku.replace(/\s+/g, '');
+            const card = document.getElementById('card-' + id);
+            const tag = document.getElementById('tag-' + id);
+            card.classList.remove('healthy', 'low', 'critical');
+            if (val <= 5) { card.classList.add('critical'); tag.innerText = "CRITICALLY LOW"; tag.style.color = "var(--danger)"; }
+            else if (val <= 10) { card.classList.add('low'); tag.innerText = "LOW STOCK"; tag.style.color = "var(--warning)"; }
+            else { card.classList.add('healthy'); tag.innerText = "HEALTHY"; tag.style.color = "var(--success)"; }
+        }
+        function sendReport() {
+            let msg = `🏭 *FACTORY INVENTORY REPORT*\nDate: ${formattedTime}\n━━━━━━━━━━━━━━━━━━\n\n`;
+            let table = "```";
+            let critical = []; let low = [];
+            document.querySelectorAll('.qty-input').forEach(i => {
+                const val = i.value || "0"; const num = parseInt(val); const name = i.dataset.sku;
+                table += `${name.padEnd(14)}: ${val.padStart(3)} Pkt\n`;
+                if (num <= 5) critical.push(name.toUpperCase());
+                else if (num <= 10) low.push(name.toUpperCase());
+            });
+            table += "```\n"; msg += table;
+            if (critical.length) msg += `🚨 *CRITICALLY LOW (≤5):*\n- ${critical.join("\n- ")}\n`;
+            if (low.length) msg += `⚠️ *LOW STOCK (6-10):*\n- ${low.join("\n- ")}\n`;
+            if (!critical.length && !low.length) msg += `✅ *ALL STOCK HEALTHY*\n`;
+            msg += `━━━━━━━━━━━━━━━━━━`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+        render();
+    </script>
+</body>
+</html>
