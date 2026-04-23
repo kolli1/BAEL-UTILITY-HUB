@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>me&mo Management Hub</title>
+    <style>
+        :root { --me-blue: #0056b3; --bg: #f0f2f5; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .logo { font-size: 2.2rem; font-weight: 900; color: var(--me-blue); margin-top: 40px; letter-spacing: -1px; }
+        .subtitle { color: #7f8c8d; margin-bottom: 40px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .stack { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 15px; }
+        .nav-card {
+            background: white; padding: 22px; border-radius: 24px; text-decoration: none;
+            display: flex; align-items: center; gap: 18px; box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+            transition: transform 0.1s; border: 1px solid rgba(0,0,0,0.05);
+        }
+        .nav-card:active { transform: scale(0.96); background: #fafafa; }
+        .icon { font-size: 2rem; }
+        .label { display: flex; flex-direction: column; }
+        .label b { color: #2c3e50; font-size: 1.15rem; margin-bottom: 2px; }
+        .label span { color: #95a5a6; font-size: 0.85rem; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="logo">me&mo</div>
+    <div class="subtitle">Management Hub</div>
+
+    <div class="stack">
+        <a href="audit.html" class="nav-card">
+            <span class="icon">📋</span>
+            <div class="label">
+                <b>Weekly Store Audit</b>
+                <span>Hygiene & Condition Check</span>
+            </div>
+        </a>
+
+        <a href="factory_inventory.html" class="nav-card">
+            <span class="icon">🏭</span>
+            <div class="label">
+                <b>Factory Inventory</b>
+                <span>Weekly SKU Stock Report</span>
+            </div>
+        </a>
+    </div>
+</body>
+</html>
