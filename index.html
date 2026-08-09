@@ -1,191 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAEL Utility Hub - Dashboard</title>
-  <style>
-    :root {
-      --primary: #DC143C; /* Crimson Red */
-      --secondary: #E07A5F; /* Terracotta */
-      --dark: #334155; /* Slate Grey */
-      --bg: #F8FAFC;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--dark);
-      margin: 0;
-      padding: 20px;
-    }
-    .header {
-      background-color: var(--primary);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    select, input, button {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #CBD5E1;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: var(--primary);
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #B21032;
-    }
-    nav a {
-      color: white;
-      margin-right: 15px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #CBD5E1;
-      padding: 8px 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #F1F5F9;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>me&mo Management Hub</title>
+    <style>
+        :root { --me-blue: #0056b3; --bg: #f0f2f5; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+        .logo { 
+            font-size: 2.2rem; 
+            font-weight: 900; 
+            color: var(--me-blue); 
+            margin-top: 40px; 
+            letter-spacing: -1px; 
+        }
+        .subtitle { 
+            color: #7f8c8d; 
+            margin-bottom: 40px; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        .stack { 
+            width: 100%; 
+            max-width: 400px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        .nav-card {
+            background: white; 
+            padding: 22px; 
+            border-radius: 24px; 
+            text-decoration: none;
+            display: flex; 
+            align-items: center; 
+            gap: 18px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.04);
+            transition: transform 0.1s ease-in-out; 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .nav-card:active { 
+            transform: scale(0.96); 
+            background: #fafafa; 
+        }
+        .icon { font-size: 2rem; }
+        .label { display: flex; flex-direction: column; }
+        .label b { color: #2c3e50; font-size: 1.15rem; margin-bottom: 2px; }
+        .label span { color: #95a5a6; font-size: 0.85rem; font-weight: 500; }
+    </style>
 </head>
 <body>
+    <div class="logo">me&mo</div>
+    <div class="subtitle">Management Hub</div>
 
-  <div class="header">
-    <h1>BAEL Utility Hub</h1>
-    <nav>
-      <a href="index.html">Dashboard</a>
-      <a href="factory_inventory.html">Factory Inventory</a>
-      <a href="audit.html">Audit</a>
-    </nav>
-  </div>
+    <div class="stack">
+        <a href="audit.html" class="nav-card">
+            <span class="icon">📋</span>
+            <div class="label">
+                <b>Weekly Store Audit</b>
+                <span>Hygiene & Supply Check</span>
+            </div>
+        </a>
 
-  <div class="card">
-    <h2>Outlet Sales & Expense Tracking</h2>
-    <form id="outletForm">
-      <div class="form-group">
-        <label for="outletSelect">Select Store / Outlet:</label>
-        <select id="outletSelect" name="outlet" required>
-          <option value="">-- Choose Outlet --</option>
-          <option value="Kondapur">Kondapur</option>
-          <option value="Madhapur">Madhapur</option>
-          <option value="Manikonda">Manikonda</option>
-          <option value="TNGOS">TNGOS</option>
-          <option value="Narsingi">Narsingi</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="toplineSales">Top-Line Income (Includes Swiggy/Zomato Gross):</label>
-        <input type="number" id="toplineSales" placeholder="0.00" step="0.01" min="0" required>
-      </div>
-
-      <div class="form-group">
-        <label for="expenses">Expenses:</label>
-        <input type="number" id="expenses" placeholder="0.00" step="0.01" min="0" required>
-      </div>
-
-      <button type="submit">Log Entry</button>
-    </form>
-  </div>
-
-  <div class="card">
-    <h2>Recent Logged Entries</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Outlet</th>
-          <th>Top-Line Sales (₹)</th>
-          <th>Expenses (₹)</th>
-        </tr>
-      </thead>
-      <tbody id="logsTableBody">
-        <!-- Log Entries injected here -->
-      </tbody>
-    </table>
-  </div>
-
-  <script>
-    const OUTLETS = ["Kondapur", "Madhapur", "Manikonda", "TNGOS", "Narsingi"];
-
-    function loadLogs() {
-      const logs = JSON.parse(localStorage.getItem('bael_outlet_logs') || '[]');
-      const tbody = document.getElementById('logsTableBody');
-      tbody.innerHTML = '';
-
-      if (logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#64748B;">No entries logged yet.</td></tr>';
-        return;
-      }
-
-      logs.slice().reverse().forEach(log => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${new Date(log.timestamp).toLocaleString()}</td>
-          <td><strong>${log.outlet}</strong></td>
-          <td>₹${parseFloat(log.sales).toFixed(2)}</td>
-          <td>₹${parseFloat(log.expenses).toFixed(2)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.getElementById('outletForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const outlet = document.getElementById('outletSelect').value;
-      const sales = parseFloat(document.getElementById('toplineSales').value) || 0;
-      const expenses = parseFloat(document.getElementById('expenses').value) || 0;
-
-      if (!outlet) {
-        alert("Please select a valid outlet.");
-        return;
-      }
-
-      const newEntry = { outlet, sales, expenses, timestamp: new Date().toISOString() };
-      const logs = JSON.parse(localStorage.getItem('bael_outlet_logs') || '[]');
-      logs.push(newEntry);
-      localStorage.setItem('bael_outlet_logs', JSON.stringify(logs));
-
-      alert(`Logged for ${outlet}:\nIncome: ₹${sales.toFixed(2)}\nExpenses: ₹${expenses.toFixed(2)}`);
-      
-      this.reset();
-      loadLogs();
-    });
-
-    // Initialize logs on page load
-    loadLogs();
-  </script>
+        <a href="factory_inventory.html" class="nav-card">
+            <span class="icon">🏭</span>
+            <div class="label">
+                <b>Factory Inventory</b>
+                <span>11 SKU Weekly Stock Report</span>
+            </div>
+        </a>
+    </div>
 </body>
 </html>
