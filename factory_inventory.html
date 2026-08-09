@@ -1,251 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAEL Utility Hub - Factory Inventory</title>
-  <style>
-    :root {
-      --primary: #DC143C;
-      --secondary: #E07A5F;
-      --dark: #334155;
-      --bg: #F8FAFC;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--dark);
-      margin: 0;
-      padding: 20px;
-    }
-    .header {
-      background-color: var(--primary);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-    select, input, button {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #CBD5E1;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: var(--primary);
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #B21032;
-    }
-    nav a {
-      color: white;
-      margin-right: 15px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #CBD5E1;
-      padding: 8px 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #F1F5F9;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Factory Stock Hub</title>
+    <style>
+        :root { --me-blue: #0056b3; --success: #25D366; --warning: #ff9800; --danger: #ff4444; --bg: #f0f2f5; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 450px; margin-bottom: 20px; text-align: center; }
+        .header h2 { color: var(--me-blue); margin: 0; font-size: 1.6rem; font-weight: 800; }
+        .timestamp { font-size: 0.75rem; color: #7f8c8d; font-weight: 600; margin-top: 5px; text-transform: uppercase; }
+        .dashboard { width: 100%; max-width: 450px; display: grid; gap: 10px; }
+        .stock-card { background: white; padding: 12px 18px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 6px solid #ddd; }
+        .stock-card.healthy { border-left-color: var(--success); }
+        .stock-card.low { border-left-color: var(--warning); background: #fffcf5; }
+        .stock-card.critical { border-left-color: var(--danger); background: #fff5f5; }
+        .sku-name { font-weight: 700; color: #2c3e50; font-size: 1rem; }
+        .status-tag { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-top: 2px; display: block; }
+        .qty-input { width: 75px; height: 45px; border: 2px solid #edf2f7; border-radius: 10px; text-align: center; font-size: 1.2rem; font-weight: 800; color: var(--me-blue); outline: none; -webkit-appearance: none; }
+        .btn-wa { width: 100%; max-width: 450px; padding: 18px; border: none; border-radius: 18px; background: #128C7E; color: white; font-weight: 800; font-size: 1.1rem; margin-top: 30px; cursor: pointer; box-shadow: 0 10px 20px rgba(18,140,126,0.2); }
+        .back-btn { margin: 25px 0; color: #95a5a6; text-decoration: none; font-size: 0.9rem; font-weight: 700; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
 </head>
 <body>
+    <div class="header"><h2>Factory Stock Hub</h2><div id="displayTime" class="timestamp"></div></div>
+    <div id="sku-list" class="dashboard"></div>
+    <button type="button" class="btn-wa" onclick="sendReport()">📤 SHARE WEEKLY INVENTORY</button>
+    <a href="index.html" class="back-btn">← RETURN TO HUB</a>
+    <script>
+        const now = new Date();
+        const formattedTime = now.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+        document.getElementById('displayTime').innerText = `Sync: ${formattedTime}`;
+        
+        const skus = ["Vanilla", "Chocolate", "Strawberry", "Mango", "Grape", "Muskmelon", "Coconut", "Lotus Biscoff", "Matcha", "Brownie", "Sesame"];
+        
+        function render() {
+            const cont = document.getElementById('sku-list');
+            cont.innerHTML = '';
+            skus.forEach(s => {
+                const id = s.replace(/\s+/g, '');
+                cont.innerHTML += `<div class="stock-card critical" id="card-${id}"><div><span class="sku-name">${s}</span><span class="status-tag" id="tag-${id}" style="color:var(--danger)">CRITICALLY LOW</span></div><input type="number" inputmode="numeric" min="0" class="qty-input" data-sku="${s}" placeholder="0" oninput="updateStatus(this)"></div>`;
+            });
+        }
 
-  <div class="header">
-    <h1>Factory Inventory & Production</h1>
-    <nav>
-      <a href="index.html">Dashboard</a>
-      <a href="factory_inventory.html">Factory Inventory</a>
-      <a href="audit.html">Audit</a>
-    </nav>
-  </div>
+        function updateStatus(el) {
+            if (el.value < 0) el.value = 0;
+            const val = el.value === "" ? 0 : parseInt(el.value, 10);
+            const id = el.dataset.sku.replace(/\s+/g, '');
+            const card = document.getElementById('card-' + id);
+            const tag = document.getElementById('tag-' + id);
+            
+            card.classList.remove('healthy', 'low', 'critical');
+            if (val <= 5) { 
+                card.classList.add('critical'); 
+                tag.innerText = "CRITICALLY LOW"; 
+                tag.style.color = "var(--danger)"; 
+            } else if (val <= 10) { 
+                card.classList.add('low'); 
+                tag.innerText = "LOW STOCK"; 
+                tag.style.color = "var(--warning)"; 
+            } else { 
+                card.classList.add('healthy'); 
+                tag.innerText = "HEALTHY"; 
+                tag.style.color = "var(--success)"; 
+            }
+        }
 
-  <div class="card">
-    <h2>Log SKU Production & Inventory</h2>
-    <form id="inventoryForm">
-      
-      <!-- Dual-Flavor Tracking -->
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="flavor1">Primary Flavor / SKU:</label>
-          <select id="flavor1" name="flavor1" required>
-            <option value="">-- Select SKU 1 --</option>
-          </select>
-        </div>
+        function sendReport() {
+            let msg = `🏭 *FACTORY INVENTORY REPORT*\nDate: ${formattedTime}\n━━━━━━━━━━━━━━━━━━\n\n`;
+            let table = "```";
+            let critical = []; 
+            let low = [];
+            
+            document.querySelectorAll('.qty-input').forEach(i => {
+                const val = i.value || "0"; 
+                const num = parseInt(val, 10); 
+                const name = i.dataset.sku;
+                
+                table += `${name.padEnd(16)}: ${val.padStart(3)} Pkt\n`;
+                if (num <= 5) critical.push(name.toUpperCase());
+                else if (num <= 10) low.push(name.toUpperCase());
+            });
+            
+            table += "```\n"; 
+            msg += table;
+            
+            if (critical.length) msg += `🚨 *CRITICALLY LOW (≤5):*\n- ${critical.join("\n- ")}\n`;
+            if (low.length) msg += `⚠️ *LOW STOCK (6-10):*\n- ${low.join("\n- ")}\n`;
+            if (!critical.length && !low.length) msg += `✅ *ALL STOCK HEALTHY*\n`;
+            msg += `━━━━━━━━━━━━━━━━━━`;
+            
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            window.location.href = waUrl;
+        }
 
-        <div class="form-group">
-          <label for="flavor2">Secondary Flavor / SKU (Optional):</label>
-          <select id="flavor2" name="flavor2">
-            <option value="">-- None / Select SKU 2 --</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Yield Inputs -->
-      <div class="grid-2">
-        <div class="form-group">
-          <label for="yieldPieces">Yield (Pieces):</label>
-          <input type="number" id="yieldPieces" placeholder="e.g. 500" min="0" required>
-        </div>
-        <div class="form-group">
-          <label for="yieldPackets">Yield (Packets):</label>
-          <input type="number" id="yieldPackets" placeholder="e.g. 50" min="0" required>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="targetWeight">Target Unit Weight (gm):</label>
-        <input type="text" id="targetWeight" value="25-30gm" required>
-      </div>
-
-      <button type="submit">Submit Production Log</button>
-    </form>
-  </div>
-
-  <div class="card">
-    <h2>Recent Production Logs</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Primary SKU</th>
-          <th>Secondary SKU</th>
-          <th>Yield (Pcs)</th>
-          <th>Yield (Pkts)</th>
-          <th>Target Weight</th>
-        </tr>
-      </thead>
-      <tbody id="productionTableBody">
-        <!-- Injected by JS -->
-      </tbody>
-    </table>
-  </div>
-
-  <script>
-    const SKUS = [
-      "Vanilla", "Strawberry", "Chocolate", "Mango", "Grape",
-      "Muskmelon", "Coconut", "Brownie", "Paan", "Sesame"
-    ];
-
-    const f1Select = document.getElementById('flavor1');
-    const f2Select = document.getElementById('flavor2');
-
-    function populateDropdowns() {
-      const selectedF1 = f1Select.value;
-      const selectedF2 = f2Select.value;
-
-      f1Select.innerHTML = '<option value="">-- Select SKU 1 --</option>';
-      f2Select.innerHTML = '<option value="">-- None / Select SKU 2 --</option>';
-
-      SKUS.forEach(sku => {
-        const opt1 = document.createElement('option');
-        opt1.value = sku;
-        opt1.textContent = sku;
-        if (sku === selectedF1) opt1.selected = true;
-        f1Select.appendChild(opt1);
-
-        const opt2 = document.createElement('option');
-        opt2.value = sku;
-        opt2.textContent = sku;
-        if (sku === selectedF1) opt2.disabled = true; // Disable duplicate in Flavor 2
-        if (sku === selectedF2 && sku !== selectedF1) opt2.selected = true;
-        f2Select.appendChild(opt2);
-      });
-    }
-
-    f1Select.addEventListener('change', populateDropdowns);
-
-    function loadProductionLogs() {
-      const logs = JSON.parse(localStorage.getItem('bael_production_logs') || '[]');
-      const tbody = document.getElementById('productionTableBody');
-      tbody.innerHTML = '';
-
-      if (logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#64748B;">No production logs submitted yet.</td></tr>';
-        return;
-      }
-
-      logs.slice().reverse().forEach(log => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${new Date(log.timestamp).toLocaleString()}</td>
-          <td><strong>${log.flavor1}</strong></td>
-          <td>${log.flavor2 || '-'}</td>
-          <td>${log.pieces} pcs</td>
-          <td>${log.packets} pkts</td>
-          <td>${log.targetWeight}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.getElementById('inventoryForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const f1 = f1Select.value;
-      const f2 = f2Select.value || null;
-      const pcs = parseInt(document.getElementById('yieldPieces').value, 10) || 0;
-      const pkts = parseInt(document.getElementById('yieldPackets').value, 10) || 0;
-      const weight = document.getElementById('targetWeight').value;
-
-      const logEntry = {
-        flavor1: f1,
-        flavor2: f2,
-        pieces: pcs,
-        packets: pkts,
-        targetWeight: weight,
-        timestamp: new Date().toISOString()
-      };
-
-      const logs = JSON.parse(localStorage.getItem('bael_production_logs') || '[]');
-      logs.push(logEntry);
-      localStorage.setItem('bael_production_logs', JSON.stringify(logs));
-
-      alert(`Production Logged:\nFlavors: ${f1} / ${f2 || 'None'}\nYield: ${pcs} pieces (${pkts} packets)\nTarget Weight: ${weight}`);
-      
-      this.reset();
-      document.getElementById('targetWeight').value = "25-30gm";
-      populateDropdowns();
-      loadProductionLogs();
-    });
-
-    populateDropdowns();
-    loadProductionLogs();
-  </script>
+        render();
+    </script>
 </body>
 </html>
